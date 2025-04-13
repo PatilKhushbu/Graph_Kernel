@@ -25,7 +25,7 @@ Tested on two benchmark datasets:
 1. Protein-Protein Interaction (PPI) networks  
 2. 2D shape skeletons (SHOCK)  
 
-Based on research from **Ca' Foscari University of Venice** (Information Retrieval course CM0473).  
+Based on research from **Ca' Foscari University of Venice**
 
 ---
 
