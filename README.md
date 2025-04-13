@@ -6,156 +6,133 @@
 ## **📌 Table of Contents**  
 1. [Project Overview](#-project-overview)  
 2. [Key Features](#-key-features)  
-3. [Algorithms Implemented](#-algorithms-implemented)  
+3. [Algorithms](#-algorithms)  
 4. [Datasets](#-datasets)  
 5. [Installation](#-installation)  
 6. [Usage](#-usage)  
 7. [Results](#-results)  
-8. [Contributors](#-contributors)
-   
+8. [Contributors](#-contributors) 
+
 ---
 
 ## **🌐 Project Overview**  
-This project explores the combination of **graph kernels** and **manifold learning** techniques to improve graph classification performance. Implemented in Python, it compares:  
+This research explores **graph kernels** paired with **manifold learning** to boost graph classification accuracy. Implemented in Python, it evaluates:  
 
-- **Graph Kernels**: Weisfeiler-Lehman Kernel  
-- **Manifold Learning**: Isomap & Locally Linear Embedding (LLE)  
+- **Graph Kernel**: Weisfeiler-Lehman (WL) subtree kernel  
+- **Manifold Techniques**: Isomap & Locally Linear Embedding (LLE)  
 
-Tested on two benchmark datasets:  
-1. Protein-Protein Interaction (PPI) networks  
-2. 2D shape skeletons (SHOCK)  
-
-Based on research from **Ca' Foscari University of Venice**
+Tested on:  
+🔬 **PPI**: Protein-protein interaction networks  
+🖼️ **SHOCK**: 2D shape skeletons  
 
 ---
 
 ## **✨ Key Features**  
 
-### **Graph Kernel Implementation**  
-| Component | Specification |  
-|-----------|---------------|  
-| Algorithm | Weisfeiler-Lehman (WL) subtree kernel |  
-| Iterations | Configurable (default h=4) |  
-| Parallelism | Multi-threaded graph processing |  
-| Output | Normalized similarity matrices |  
+### **Core Components**  
+| **Module** | **Capabilities** |  
+|------------|------------------|  
+| **WL Kernel** | Multi-iteration label propagation, parallelized graph processing |  
+| **Isomap** | Geodesic distance preservation, neighborhood graph embedding |  
+| **LLE** | Local linearity preservation, sparse eigenvalue decomposition |  
 
-### **Manifold Learning**  
-| Technique | Parameters |  
-|-----------|------------|  
-| Isomap | Neighborhood size (2-24), Components (2-9) |  
-| LLE | Neighborhood size (2-24), Components (2-9) |  
-
-### **Evaluation Framework**  
+### **Evaluation**  
 - 10-fold stratified cross-validation  
 - Linear SVM classifier  
-- Comprehensive metrics: Min/Mean/Max accuracy ± Std. Dev.  
+- Metrics: Accuracy (min/mean/max ± σ)  
 
 ---
 
-## **🧮 Algorithms Implemented**  
+## **🧮 Algorithms**  
 
 ### **Weisfeiler-Lehman Kernel**  
 ```python
 class WeisfeilerLehman:
-    def __init__(self, graphs, h):
-        # Initializes node labels (degrees) and compression dictionary
-        ...
-        
     def run(self):
-        # Executes h WL iterations and computes kernel matrix
-        ...
+        # 1. Initialize node labels (degrees)
+        # 2. For h iterations:
+        #    a. Relabel nodes via neighbor aggregation  
+        #    b. Compress labels  
+        # 3. Compute normalized kernel matrix
 ```
 
 ### **Manifold Learning**  
 ```python
-# Isomap Transformation
-manifold.Isomap(n_neighbors=5, n_components=3).fit_transform(matrix)
+# Isomap
+embedding = Isomap(n_neighbors=12, n_components=5).fit_transform(K)
 
-# LLE Transformation  
-manifold.LocallyLinearEmbedding(n_neighbors=10, n_components=4).fit_transform(matrix)
+# LLE 
+embedding = LocallyLinearEmbedding(n_neighbors=8, method='standard').fit_transform(K)
 ```
 
 ---
 
 ## **📊 Datasets**  
+| Dataset | Graphs | Avg Nodes | Classes | Description |  
+|---------|--------|-----------|---------|-------------|  
+| PPI | 86 | ~200 | 2 | Protein interaction networks |  
+| SHOCK | 150 | ~33 | 5 | 2D shape skeletons |  
 
-| Dataset | Type | Nodes (avg) | Graphs | Classes |  
-|---------|------|------------|--------|---------|  
-| [PPI](http://www.dsi.unive.it/~atorsell/AI/graph/PPI.mat) | Protein Networks | ~200 | 86 | 2 |  
-| [SHOCK](http://www.dsi.unive.it/~atorsell/AI/graph/Shock.mat) | 2D Shapes | ~33 | 150 | 5 |  
-
-**Data Structure:**  
+**Structure:**  
 ```matlab
-G = [ 
-    struct('am', adjacency_matrix1, 'nl', node_labels1), 
-    struct('am', adjacency_matrix2, 'nl', node_labels2),
-    ...
-]
-labels = [class1, class2, ...] 
+% MATLAB .mat format
+G = [struct('am', adj_mat1), ...]  % Adjacency matrices
+labels = [0, 1, ...]               % Class labels
 ```
 
 ---
 
 ## **🛠 Installation**  
-
-### **Requirements**  
-- Python 3.8+  
-- Libraries:  
-  ```bash
-  pip install numpy scipy scikit-learn matplotlib threadpoolctl
-  ```
-
-### **Data Preparation**  
-1. Download datasets:  
+1. **Requirements**:  
    ```bash
-   mkdir dataset && cd dataset
-   wget http://www.dsi.unive.it/~atorsell/AI/graph/PPI.mat
-   wget http://www.dsi.unive.it/~atorsell/AI/graph/Shock.mat
+   pip install numpy scipy scikit-learn matplotlib
+   ```
+2. **Data Setup**:  
+   ```bash
+   mkdir dataset
+   wget -P dataset/ http://www.dsi.unive.it/~atorsell/AI/graph/{PPI,Shock}.mat
    ```
 
 ---
 
 ## **🚀 Usage**  
-
-### **1. Compute WL Kernel Matrices**  
+### **1. Compute WL Kernel**  
 ```python
 wl = WeisfeilerLehman(graphs, h=4)
-similarity_matrix = wl.run()  # Returns normalized n×n matrix
+K = wl.run()  # n×n similarity matrix
 ```
 
-### **2. Apply Manifold Learning**  
+### **2. Dimensionality Reduction**  
 ```python
-# Optimal parameters from grid search
-isomap_embedding = Isomap(n_neighbors=8, n_components=5).fit_transform(similarity_matrix)
+# Optimal params from grid search
+X_iso = Isomap(n_neighbors=12, n_components=5).fit_transform(K)
 ```
 
-### **3. Evaluate Classifier**  
+### **3. Evaluate**  
 ```python
-scores = cross_val_score(SVC(kernel='linear'), embeddings, labels, cv=10)
-print(f"Accuracy: {np.mean(scores):.2f} ± {np.std(scores):.2f}")
+cv_scores = cross_val_score(SVC(kernel='linear'), X_iso, labels, cv=10)
+print(f"Accuracy: {np.mean(cv_scores):.2f} ± {np.std(cv_scores):.2f}")
 ```
 
 ---
 
 ## **📈 Results**  
-
-### **PPI Dataset Performance**  
-| Method | Best Accuracy | Parameters |  
-|--------|--------------|------------|  
+### **PPI Dataset**  
+| Method | Accuracy | Parameters |  
+|--------|----------|------------|  
 | WL Only | 0.82 ± 0.05 | - |  
-| WL + Isomap | 0.87 ± 0.03 | neighbors=12, components=7 |  
-| WL + LLE | 0.84 ± 0.04 | neighbors=5, components=3 |  
+| WL+Isomap | **0.87 ± 0.03** | k=12, d=5 |  
 
-### **SHOCK Dataset Performance**  
-| Method | Best Accuracy | Parameters |  
-|--------|--------------|------------|  
+### **SHOCK Dataset**  
+| Method | Accuracy | Parameters |  
+|--------|----------|------------|  
 | WL Only | 0.76 ± 0.08 | - |  
-| WL + Isomap | 0.83 ± 0.06 | neighbors=18, components=4 |  
-| WL + LLE | 0.79 ± 0.07 | neighbors=9, components=5 |  
+| WL+LLE | **0.83 ± 0.06** | k=18, d=4 |  
 
 ---
 
 ## **👥 Contributors**  
-**Ca' Foscari University of Venice**  
 - **Khushbu Mahendra Patil**
 - **Vafa Khalid**
+
+---
